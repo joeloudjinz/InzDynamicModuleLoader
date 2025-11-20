@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicLoader", "InzDynamicLoader\InzDynamicLoader.csproj", "{070B04EA-222E-42DC-B4ED-A101CE7B68D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicLoader.Core", "InzDynamicLoader.Core\InzDynamicLoader.Core.csproj", "{070B04EA-222E-42DC-B4ED-A101CE7B68D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
