@@ -1,74 +1,55 @@
 # Inz Dynamic Module Loader
 
-NetDynamicModuleLoader is a .NET 9.0 package that has robust dynamic module loading capabilities which enables registered modules in the configuration
-layer to be loaded at runtime, ensuring a better separation of concerns and module isolation while maintaining clean architecture boundaries.
+The Inz Dynamic Module Loader is a .NET 9.0 library that enables plugin-based architecture by loading modules at runtime. This allows for better separation of concerns, module isolation, and flexible infrastructure switching while maintaining clean architecture boundaries.
 
 ## Features
 
-- Robust plugin-based architecture with runtime loading of modules ensuring complete isolation
-- Configuration-driven module loading from `appsettings.json` with dynamic dependency resolution
-- Modules implement the `IAmModule` interface to register services with dependency injection container
-- Support for module initialization after service registration ensuring proper startup sequence
-- Each module maintains clear separation of concerns and can provide its own infrastructure implementations
+- Dynamic Module Loading: Load modules at runtime based on configuration
+- Plugin Architecture: Create extensible applications with modular functionality
+- Easy Integration: Simple setup with .NET's built-in dependency injection
+- Dependency Management: Automatic resolution of module-specific dependencies
+- Configuration-Driven: Control which modules load through configuration files
+- Development & Production: Works seamlessly in both environments
 
-## Module Loading Process
+## Prerequisites
 
-TODO generate short paragraph talking about the module loading process briefly then point to the main article like below
-Learn more about the modules loading logic from the article [Module System Architecture](../Documentations/Module%20System%20Architecture.md)
+- .NET 9.0 or higher
 
-## Technical Details
+## How to Use
 
-TODO generate short paragraph talking about the technical details of the full package
+### 1. Install the Package
 
-## How To Use
-
-### Install NetDynamicModuleLoader
-
-You will have to install the package into one of your .NET projects in your solution
+Add the Inz Dynamic Module Loader to your startup project:
 
 ```shell
-  dotnet add package InzSoftwares.NetDynamicModuleLoader
+dotnet add package InzSoftwares.NetDynamicModuleLoader
 ```
 
-### Define The Build Targets
+### 2. Configure Build Targets
 
-So that your startup project can figure out all the dependencies required by all the dynamically modules run properly, create a
-`Directory.Build.targets` file with the following content:
+Create a `Directory.Build.targets` file in your solution root directory with this content. This ensures all module dependencies are properly copied:
 
-```msbuild
-
+```xml
 <Project>
     <PropertyGroup Condition="'$(IsModuleProject)' == 'true'">
-        <!-- 
-            This property forces MSBuild to copy all assemblies from the project's dependency graph (including NuGet packages) into 
-            the output directory (e.g., bin/Debug/netX.X) on a normal build.
-            This ensures that when a module is loaded dynamically, all its dependencies are present in the same directory.
-        -->
+        <!-- Forces MSBuild to copy all dependencies to the output directory -->
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-
-        <!-- Explicitly ensure lock file assemblies are copied -->
+        <!-- Generates dependency file for proper resolution -->
         <GenerateDependencyFile>true</GenerateDependencyFile>
     </PropertyGroup>
 
-    <!-- 
-       Define a Custom Target that runs after the build is finished.
-       It copies the output to: {SolutionRoot}/BuiltModules/{ProjectName}/
-    -->
+    <!-- Custom target to deploy modules to a unified folder after build -->
     <Target Name="DeployModuleToUnifiedFolder" AfterTargets="Build" Condition="'$(IsModuleProject)' == 'true'">
         <PropertyGroup>
-            <!-- Calculate the destination path -->
             <UnifiedModulePath>$(MSBuildThisFileDirectory)BuiltModules/$(MSBuildProjectName)/</UnifiedModulePath>
         </PropertyGroup>
 
         <ItemGroup>
-            <!-- Select all files in the build output directory -->
             <ModuleFiles Include="$(OutputPath)**/*.*"/>
         </ItemGroup>
 
-        <!-- Log a message to the console so you know it's working -->
         <Message Text="[Module Deployment] Copying $(MSBuildProjectName) to $(UnifiedModulePath)" Importance="High"/>
 
-        <!-- Perform the copy -->
         <Copy SourceFiles="@(ModuleFiles)"
               DestinationFolder="$(UnifiedModulePath)%(RecursiveDir)"
               SkipUnchangedFiles="true"/>
@@ -76,121 +57,174 @@ So that your startup project can figure out all the dependencies required by all
 </Project>
 ```
 
-This logic will make sure that each dynamically loaded module will include all its dependencies with it, hence the tag `CopyLocalLockFileAssemblies`,
-and also include the `deps.json` file, hence the tag `GenerateDependencyFile`.
-The custom target logic will create a dedicated directory called `BuiltModules` in the solution directory so each dynamically loaded module's
-dependencies can be found and resolved correctly by the NetDynamicModuleLoader.
+This configuration ensures each dynamically loaded module includes all its dependencies and the `deps.json` file. The custom target creates a dedicated `BuiltModules` directory in the solution directory where each dynamically loaded module's dependencies can be found and resolved correctly.
 
-Read more about this type of file and its content in the following [documentation](../Documentations/Directory.Build.targets%20Documentation.md)
+For more details about this file and its purpose, see the [Directory.Build.targets Documentation](../Documentations/Directory.Build.targets%20Documentation.md).
 
-### Create Your First Module
+### 3. Create a Module Project
 
-Now create a new .NET project in your solution, it can be a simple class library project with `OutputType` as `Library`.
-In `.csproj` of the new module, add the following tag in the `PropertyGroup` section:
+1. Create a new .NET Class Library project
+2. In the `.csproj` file, add the `IsModuleProject` property:
 
-```msbuild 
-<!-- Triggers the logic in Directory.Build.props -->
-<IsModuleProject>true</IsModuleProject>
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Enables the module deployment logic -->
+    <IsModuleProject>true</IsModuleProject>
+  </PropertyGroup>
+
+</Project>
 ```
 
-### Register & Initialize Services
+### 4. Implement Your Module
 
-If your module should register (using `IServiceCollection`) or initialize (using `IServiceProvider`) services (e.g. EF Core with MySQL),
-create a class that implements `IAmModule` and implement the methods as needed.
+In your module project, create a class that implements the `IAmModule` interface:
 
 ```csharp
-public class MySuperDooperModule : IAmModule
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using InzDynamicLoader.Core;
+
+public class MyExampleModule : IAmModule
 {
-   public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
-   {
-      // Use configuration to get config options
-      // Use services to rgister services into the DI
-      return services;
-   }
-   
-   public IServiceProvider InitializeServices(IServiceProvider services, IConfiguration configuration)
-   {
-      // Use configuration to get config options
-      // Use service to initialize services
-      return services;
-   }
+    public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
+    {
+        // Register your module's services here
+        // Example: services.AddScoped<IMyService, MyServiceImplementation>();
+
+        return services;
+    }
+
+    public IServiceProvider InitializeServices(IServiceProvider services, IConfiguration configuration)
+    {
+        // Initialize services after registration (optional)
+        // Example: Initialize database connections, event handlers, etc.
+
+        return services;
+    }
 }
 ```
 
-### Update Startup Project
+### 5. Configure Modules
 
-In your startup project, define your modules list in the configuration file (e.g. appsettings.json) like the following:
+In your main application's `appsettings.json`, specify which modules to load:
 
 ```json
 {
   "Modules": [
-    "MySuperDooperModule",
-    "MyOtherSuperDooperModule"
+    "MyExampleModule",
+    "AnotherModule"
   ]
 }
 ```
 
-**_It is important to list all the modules that should be loaded dynamically in the `Modules` list except the startup module._**
+### 6. Register and Initialize Modules
 
-In the `Program.cs` of your startup project, call the extension methods so the modules are loaded dynamically and services get registered and
-initialized.
+In your main application's `Program.cs` (or `Startup.cs`), register and initialize the modules:
 
 ```csharp
+using InzDynamicLoader.Core;
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.RegisterModules(configuration);
+
+// Register modules and their services
+builder.Services.RegisterModules(builder.Configuration);
+
 var app = builder.Build();
-app.Services.InitializeModules(configuration);
+
+// Initialize modules after services are registered
+app.Services.InitializeModules(builder.Configuration);
+
+// Continue with your application setup
+app.Run();
 ```
 
-### Avoiding "Diamond Dependency" problem
+## Project Structure
 
-Since each dynamically loaded module can have its own dependencies with specific versions, and these modules alongside their dependencies will be
-loaded into the main context of the startup project, it is possible to face the issue where multiple modules might require the same dependency, like
-`Newtonsoft.Json`, with different versions. During loading time, there will be a version override and one of the dynamically loaded modules which
-requires the overriden version of the dependency might during runtime.
-To avoid this problem and be able to manage versions in the same place for all the dynamically loaded modules, define a file named
-`Directory.Packages.props` in the solution directory with the following content structure:
+After setup, your solution will have this structure:
 
-```msbuild
+```
+YourSolution/
+├── MainApplication/          # Your main application
+├── Module1/                  # First module project
+├── Module2/                  # Second module project
+├── Directory.Build.targets   # Build configuration
+├── Directory.Packages.props  # Centralized package versions
+└── BuiltModules/             # Automatically created - contains compiled modules
+    ├── Module1/
+    │   ├── Module1.dll
+    │   ├── Module1.deps.json
+    │   └── Dependencies...
+    └── Module2/
+        ├── Module2.dll
+        ├── Module2.deps.json
+        └── Dependencies...
+```
 
+## Managing Dependencies
+
+When working with multiple modules, you may encounter the "Diamond Dependency" problem. This occurs when different modules require the same dependency but at different versions. For example:
+
+- Module A requires Newtonsoft.Json v13
+- Module B requires Newtonsoft.Json v9
+- At runtime, only one version can be loaded, which may cause compatibility issues
+
+To solve this problem and ensure version consistency across all modules, create a `Directory.Packages.props` file in your solution root. This file enables Central Package Management, which defines package versions in one central location:
+
+```xml
 <Project>
-    <!--  .NET Central Package Management.  -->
-    <!--  This file used to avoid the "Diamond Dependency" problem  -->
-    <!--  
-        Since everything loads into the Default context, version conflicts are fatal.
-            - Scenario: Module A uses Newtonsoft.Json v13. Module B uses Newtonsoft.Json v9.
-            - Result: The first one loaded wins. The second module will likely crash with MethodNotFoundException at runtime.
-            - Mitigation: You must enforce strict version alignment across all modules.
-    -->
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
-    <!-- Define versions ONCE for the whole solution -->
     <ItemGroup>
-        <!-- Core Dependencies Example -->
+        <!-- Define package versions once for the entire solution -->
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0"/>
         <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0"/>
-
-        <!-- Third Party Dependencies Example -->
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.0"/>
-        <PackageVersion Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0"/>
-
-        <!-- Test Dependencies Example -->
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
-        <PackageVersion Include="xunit" Version="2.9.2"/>
-        <PackageVersion Include="FluentAssertions" Version="8.8.0"/>
-
-        <!-- Other external dependencies -->
+        <!-- Add other package versions here -->
     </ItemGroup>
 </Project>
 ```
 
-Read more about this type of file and its content in the following [documentation](../Documentations/Directory.Packages.props%20Documentation.md)
+When using this approach, reference packages without specifying versions in your project files:
 
-In `.csproj` file of your .NET projects in your solution, you can just specify the required package without the version:
-
-```msbuild
-
-<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+```xml
+<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
 ```
+
+For more information about this file and its content, see the [Directory.Packages.props Documentation](../Documentations/Directory.Packages.props%20Documentation.md).
+
+## IAmModule Interface Explained
+
+The `IAmModule` interface has two methods:
+
+- **RegisterServices**: Called first, registers services with the dependency injection container
+- **InitializeServices**: Called after registration, allows for service initialization and configuration
+
+## Troubleshooting
+
+Problem: Module dependencies not found
+- Solution: Ensure `CopyLocalLockFileAssemblies=true` is set in your module project
+
+Problem: Type conflicts between modules
+- Solution: Use `Directory.Packages.props` to ensure version consistency
+
+Problem: Module not loading
+- Solution: Check that the module name in `appsettings.json` matches the assembly name exactly
+
+## Learn More
+
+For detailed technical information about how the module loading system works, check out the [Module System Architecture](../Documentations/Module%20System%20Architecture.md) documentation.
+
+## Contributing
+
+Contributions are welcome! Feel free to submit issues or pull requests to improve this library.
+
+## License
+
+This project is licensed under the MIT License.
