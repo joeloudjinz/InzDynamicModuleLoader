@@ -2,6 +2,17 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicLoader.Core", "InzDynamicLoader.Core\InzDynamicLoader.Core.csproj", "{070B04EA-222E-42DC-B4ED-A101CE7B68D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.ModuleOne", "Sample.ModuleOne\Sample.ModuleOne.csproj", "{C6B6EB32-4AEE-47F1-B9B9-B746FE396563}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.ModuleTwo", "Sample.ModuleTwo\Sample.ModuleTwo.csproj", "{6E818E55-ED5B-4535-8208-F41F57324074}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.StartupModule", "Sample.StartupModule\Sample.StartupModule.csproj", "{0FE983FA-56EB-4145-B129-C07F0C9E7631}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{5FFD7047-4812-4957-B413-4BE0484A5457}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.targets = Directory.Build.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +23,22 @@ Global
 		{070B04EA-222E-42DC-B4ED-A101CE7B68D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{070B04EA-222E-42DC-B4ED-A101CE7B68D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{070B04EA-222E-42DC-B4ED-A101CE7B68D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6B6EB32-4AEE-47F1-B9B9-B746FE396563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6B6EB32-4AEE-47F1-B9B9-B746FE396563}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6B6EB32-4AEE-47F1-B9B9-B746FE396563}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6B6EB32-4AEE-47F1-B9B9-B746FE396563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E818E55-ED5B-4535-8208-F41F57324074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E818E55-ED5B-4535-8208-F41F57324074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E818E55-ED5B-4535-8208-F41F57324074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E818E55-ED5B-4535-8208-F41F57324074}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FE983FA-56EB-4145-B129-C07F0C9E7631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FE983FA-56EB-4145-B129-C07F0C9E7631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FE983FA-56EB-4145-B129-C07F0C9E7631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FE983FA-56EB-4145-B129-C07F0C9E7631}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C6B6EB32-4AEE-47F1-B9B9-B746FE396563} = {5FFD7047-4812-4957-B413-4BE0484A5457}
+		{6E818E55-ED5B-4535-8208-F41F57324074} = {5FFD7047-4812-4957-B413-4BE0484A5457}
+		{0FE983FA-56EB-4145-B129-C07F0C9E7631} = {5FFD7047-4812-4957-B413-4BE0484A5457}
 	EndGlobalSection
 EndGlobal

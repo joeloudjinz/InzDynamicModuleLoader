@@ -9,7 +9,7 @@ internal static class ModuleInitializer
         foreach (var module in ModuleRegistry.LoadedModuleDefinitions)
         {
             module.InitializeServices(serviceProvider, configuration);
-            Console.WriteLine($"Module {module.GetType().Assembly.FullName} initialized.");
+            Console.WriteLine($"Module [{module.GetType().Assembly.GetName().Name}] initialized.");
         }
     }
 }

@@ -1,0 +1,25 @@
+<Project>
+    <PropertyGroup Condition="'$(IsModuleProject)' == 'true'">
+        <!-- Forces MSBuild to copy all dependencies to the output directory -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <!-- Generates dependency file for proper resolution -->
+        <GenerateDependencyFile>true</GenerateDependencyFile>
+    </PropertyGroup>
+
+    <!-- Custom target to deploy modules to a unified folder after build -->
+    <Target Name="DeployModuleToUnifiedFolder" AfterTargets="Build" Condition="'$(IsModuleProject)' == 'true'">
+        <PropertyGroup>
+            <UnifiedModulePath>$(MSBuildThisFileDirectory)BuiltModules/$(MSBuildProjectName)/</UnifiedModulePath>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <ModuleFiles Include="$(OutputPath)**/*.*"/>
+        </ItemGroup>
+
+        <Message Text="[Module Deployment] Copying $(MSBuildProjectName) to $(UnifiedModulePath)" Importance="High"/>
+
+        <Copy SourceFiles="@(ModuleFiles)"
+              DestinationFolder="$(UnifiedModulePath)%(RecursiveDir)"
+              SkipUnchangedFiles="true"/>
+    </Target>
+</Project>
