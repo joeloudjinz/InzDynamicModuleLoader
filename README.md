@@ -1,6 +1,6 @@
-# Inz Dynamic Module Loader
+# InzDynamicModuleLoader
 
-The Inz Dynamic Module Loader is a .NET 9.0 library that enables plugin-based architecture by loading modules at startup time. This allows for better
+InzDynamicModuleLoader is a .NET 9.0 library that enables plugin-based architecture by loading modules at startup time. This allows for better
 separation of concerns, module isolation, and flexible infrastructure switching while maintaining clean architecture boundaries.
 
 ## Table of Contents
@@ -8,12 +8,12 @@ separation of concerns, module isolation, and flexible infrastructure switching 
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [How to Use](#how-to-use)
-    - [1. Install the Package](#1-install-the-package)
-    - [2. Configure Build Targets](#2-configure-build-targets)
-    - [3. Create a Module Project](#3-create-a-module-project)
-    - [4. Implement Your Module](#4-implement-your-module)
-    - [5. Configure Modules](#5-configure-modules)
-    - [6. Register and Initialize Modules](#6-register-and-initialize-modules)
+  - [1. Install the Package](#1-install-the-package)
+  - [2. Configure Build Targets](#2-configure-build-targets)
+  - [3. Create a Module Project](#3-create-a-module-project)
+  - [4. Implement Your Module](#4-implement-your-module)
+  - [5. Configure Modules](#5-configure-modules)
+  - [6. Register and Initialize Modules](#6-register-and-initialize-modules)
 - [Project Structure](#project-structure)
 - [Managing Dependencies](#managing-dependencies)
 - [IAmModule Interface Explained](#iammodule-interface-explained)
@@ -226,8 +226,7 @@ When using this approach, reference packages without specifying versions in your
 <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
 ```
 
-For more information about this file and its content, see
-the [Directory.Packages.props Documentation](../Documentations/Directory.Packages.props%20Documentation.md).
+For more information about this file and its content, see the [Directory.Packages.props Documentation](../Documentations/Directory.Packages.props%20Documentation.md).
 
 ## IAmModule Interface Explained
 
@@ -238,8 +237,24 @@ The `IAmModule` interface has two methods:
 
 ## Example Implementation
 
-The GitHub repo includes a comprehensive example that demonstrates the dynamic loading capabilities of the package. The example
+The project includes a comprehensive example that demonstrates the dynamic loading capabilities of the InzDynamicModuleLoader system. The example
 showcases a real-world scenario where database infrastructure can be switched at startup without code changes.
+
+The example includes:
+
+- Multiple database provider implementations (MySQL and PostgreSQL)
+- Core shared components with contracts and data models
+- Common EF Core repository patterns
+- Runtime switching between database providers based on configuration
+- Clean separation of concerns between modules
+
+The example uses modules with the `Example.` prefix to demonstrate:
+
+- `Example.Module.Common` - Contains shared contracts, entities, and configurations
+- `Example.Module.EFCore.MySQL` - MySQL-specific implementation
+- `Example.Module.EFCore.PostgreSQL` - PostgreSQL-specific implementation
+- `Example.Module.EFCore.Repositories` - Repository implementations
+- `Example.Module.WebStartup` - Web application startup project
 
 This architecture demonstrates how to build flexible applications where infrastructure concerns can be swapped out dynamically, maintaining clean
 separation of concerns while enabling maximum flexibility.
