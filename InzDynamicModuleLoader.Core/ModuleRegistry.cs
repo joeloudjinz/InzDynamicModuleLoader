@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace InzDynamicLoader.Core;
+namespace InzDynamicModuleLoader.Core;
 
 internal static class ModuleRegistry
 {

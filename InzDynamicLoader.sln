@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicLoader.Core", "InzDynamicLoader.Core\InzDynamicLoader.Core.csproj", "{070B04EA-222E-42DC-B4ED-A101CE7B68D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicModuleLoader.Core", "InzDynamicModuleLoader.Core\InzDynamicModuleLoader.Core.csproj", "{070B04EA-222E-42DC-B4ED-A101CE7B68D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Module.EFCore.MySQL", "Example.Module.EFCore.MySQL\Example.Module.EFCore.MySQL.csproj", "{C6B6EB32-4AEE-47F1-B9B9-B746FE396563}"
 EndProject

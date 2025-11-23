@@ -1,4 +1,4 @@
-namespace InzDynamicLoader.Core;
+namespace InzDynamicModuleLoader.Core;
 
 internal static class InzConsole
 {
