@@ -6,9 +6,9 @@
         <Nullable>enable</Nullable>
 
         <PackageId>InzSoftwares.NetDynamicModuleLoader</PackageId>
-        <Version>0.9.0</Version>
-        <AssemblyVersion>0.9.0.0</AssemblyVersion>
-        <FileVersion>0.9.0.0</FileVersion>
+        <Version>0.9.1</Version>
+        <AssemblyVersion>0.9.1.0</AssemblyVersion>
+        <FileVersion>0.9.1.0</FileVersion>
         <Authors>Abdellah Addoun</Authors>
         <Company>InzSoftwares</Company>
         <Product>InzSoftwares.NetDynamicModuleLoader</Product>
