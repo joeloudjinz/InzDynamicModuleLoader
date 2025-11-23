@@ -11,12 +11,17 @@ internal static class ModuleLoader
 
     public static void Load(string[] moduleNames)
     {
+        Load(moduleNames, GetModulesRootDirectory());
+    }
+    
+    internal static void Load(string[] moduleNames, string rootPath)
+    {
         // Hook into the AssemblyResolve event.
         // This is the critical piece that allows dependencies (like EF Core) to be loaded from the module's directory into the Default Context.
         AppDomain.CurrentDomain.AssemblyResolve += ResolveDependencies;
 
         // Determine where the modules are located (Dev vs Prod)
-        var modulesRootPath = GetModulesRootDirectory();
+        var modulesRootPath = rootPath;
         InzConsole.Log($"Modules Root Path: [{modulesRootPath}]");
 
         foreach (var moduleName in moduleNames)

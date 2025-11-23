@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +22,22 @@ public static class InzDynamicLoaderExtensions
         var moduleNames = configuration.GetSection(Constants.ModulesConfigurationLabel).Get<string[]>() ?? [];
         if (moduleNames.Length == 0) throw new Exception("No modules are specified in configuration");
 
-        ModuleLoader.Load(moduleNames);
+        // Force a GC before starting to get a clean memory baseline
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        var startMem = GC.GetTotalMemory(true);
+
+        // High-precision timer
+        var stopwatch = Stopwatch.StartNew();
+
+        // ModuleLoader.Load(moduleNames);
+        ModuleLoaderV2.Load(moduleNames);
+
+        stopwatch.Stop();
+        var endMem = GC.GetTotalMemory(false);
+
+        // Output a special tag for our benchmark runner to catch
+        Console.WriteLine($"[InzDynamicModuleLoader] Loading Time:{stopwatch.Elapsed.TotalMilliseconds:F4} ms | Memory Delta:{(endMem - startMem) / 1000} Kb");
 
         foreach (var module in ModuleRegistry.LoadedModuleDefinitions) module.RegisterServices(services, configuration);
     }
