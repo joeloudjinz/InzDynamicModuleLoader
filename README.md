@@ -83,7 +83,7 @@ This configuration ensures each dynamically loaded module includes all its depen
 dedicated `BuiltModules` directory in the solution directory where each dynamically loaded module's dependencies can be found and resolved correctly.
 
 For more details about this file and its purpose, see
-the [Directory.Build.targets Documentation](../Documentations/Directory.Build.targets%20Documentation.md).
+the [Directory.Build.targets Documentation](https://github.com/joeloudjinz/InzDynamicModuleLoader/blob/main/Documentations/Directory.Build.targets%20Documentation.md).
 
 ### 3. Create a Module Project
 
@@ -226,7 +226,7 @@ When using this approach, reference packages without specifying versions in your
 <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
 ```
 
-For more information about this file and its content, see the [Directory.Packages.props Documentation](../Documentations/Directory.Packages.props%20Documentation.md).
+For more information about this file and its content, see the [Directory.Packages.props Documentation](https://github.com/joeloudjinz/InzDynamicModuleLoader/blob/main/Documentations/Directory.Packages.props%20Documentation.md).
 
 ## IAmModule Interface Explained
 

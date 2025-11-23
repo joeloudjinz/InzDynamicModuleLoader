@@ -120,14 +120,7 @@ Projects must define `IsModuleProject=true` to utilize the module-specific funct
 
 ## Implementation Notes
 
-### Assembly Loading Considerations
-The `CopyLocalLockFileAssemblies` property is crucial for plugin architecture because:
-- It ensures all transitive dependencies are available in the local directory
-- The `AssemblyDependencyResolver` can properly locate dependencies when loading modules at runtime
-- Without this setting, module loading may fail due to missing dependency references
-
 ### Build Performance Tips
-- Use `SkipUnchangedFiles="true"` to minimize deployment overhead
 - Consider using this only for actual module projects (with `IsModuleProject=true`)
 - Monitor build times when adding new module projects to the solution
 

@@ -83,7 +83,7 @@ This configuration ensures each dynamically loaded module includes all its depen
 dedicated `BuiltModules` directory in the solution directory where each dynamically loaded module's dependencies can be found and resolved correctly.
 
 For more details about this file and its purpose, see
-the [Directory.Build.targets Documentation](../Documentations/Directory.Build.targets%20Documentation.md).
+the [Directory.Build.targets Documentation](https://github.com/joeloudjinz/InzDynamicModuleLoader/blob/main/Documentations/Directory.Build.targets%20Documentation.md).
 
 ### 3. Create a Module Project
 
@@ -227,7 +227,7 @@ When using this approach, reference packages without specifying versions in your
 ```
 
 For more information about this file and its content, see
-the [Directory.Packages.props Documentation](../Documentations/Directory.Packages.props%20Documentation.md).
+the [Directory.Packages.props Documentation](https://github.com/joeloudjinz/InzDynamicModuleLoader/blob/main/Documentations/Directory.Packages.props%20Documentation.md).
 
 ## IAmModule Interface Explained
 
@@ -244,7 +244,7 @@ showcases a real-world scenario where database infrastructure can be switched at
 This architecture demonstrates how to build flexible applications where infrastructure concerns can be swapped out dynamically, maintaining clean
 separation of concerns while enabling maximum flexibility.
 
-For step-by-step instructions on how to run and understand the example, see the [Example Breakdown](../Documentations/Example%20Breakdown.md)
+For step-by-step instructions on how to run and understand the example, see the [Example Breakdown](https://github.com/joeloudjinz/InzDynamicModuleLoader/blob/main/Documentations/Example%20Breakdown.md)
 documentation.
 
 ## Troubleshooting
