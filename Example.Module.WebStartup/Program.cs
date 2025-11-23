@@ -1,5 +1,5 @@
 using Example.Module.Common.Contracts;
-using InzDynamicLoader.Core;
+using InzDynamicModuleLoader.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.RegisterModules(builder.Configuration);

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InzDynamicLoader.Core;
+namespace InzDynamicModuleLoader.Core;
 
 /// <summary>
 /// Provides extension methods for dynamically loading and initializing modules in an application.
@@ -20,7 +20,7 @@ public static class InzDynamicLoaderExtensions
     public static void RegisterModules(this IServiceCollection services, IConfiguration configuration)
     {
         var moduleNames = configuration.GetSection(Constants.ModulesConfigurationLabel).Get<string[]>() ?? [];
-        if (moduleNames.Length == 0) throw new Exception("No modules are specified in configuration");
+        if (moduleNames.Length == 0) throw new InvalidOperationException("No modules are specified in configuration");
 
         // Force a GC before starting to get a clean memory baseline
         GC.Collect();
@@ -31,13 +31,13 @@ public static class InzDynamicLoaderExtensions
         var stopwatch = Stopwatch.StartNew();
 
         // ModuleLoader.Load(moduleNames);
-        ModuleLoaderV2.Load(moduleNames);
+        ModuleLoader.Load(moduleNames);
 
         stopwatch.Stop();
         var endMem = GC.GetTotalMemory(false);
 
         // Output a special tag for our benchmark runner to catch
-        Console.WriteLine($"[InzDynamicModuleLoader] Loading Time:{stopwatch.Elapsed.TotalMilliseconds:F4} ms | Memory Delta:{(endMem - startMem) / 1000} Kb");
+        InzConsole.SuccessWithNewLine($"[InzDynamicModuleLoader] Loading Time:{stopwatch.Elapsed.TotalMilliseconds:F4} ms | Memory Delta:{(endMem - startMem) / 1000} Kb");
 
         foreach (var module in ModuleRegistry.LoadedModuleDefinitions) module.RegisterServices(services, configuration);
     }
@@ -51,7 +51,7 @@ public static class InzDynamicLoaderExtensions
     /// <exception cref="System.Exception">Thrown when no assemblies have been loaded yet.</exception>
     public static void InitializeModules(this IServiceProvider services, IConfiguration configuration)
     {
-        if (ModuleRegistry.LoadedAssemblies.Count == 0) throw new Exception("No assemblies are loaded!");
+        if (ModuleRegistry.LoadedAssemblies.Count == 0) throw new InvalidOperationException("No modules were loaded!");
 
         ModuleInitializer.Initialize(services, configuration);
     }

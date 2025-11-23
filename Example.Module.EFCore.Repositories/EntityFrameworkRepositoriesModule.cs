@@ -1,5 +1,5 @@
 ﻿using Example.Module.Common.Contracts;
-using InzDynamicLoader.Core;
+using InzDynamicModuleLoader.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

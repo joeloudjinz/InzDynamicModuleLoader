@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InzDynamicLoader.Core;
+namespace InzDynamicModuleLoader.Core;
 
 /// <summary>
 /// Defines the contract for a module that can be dynamically loaded into an application.

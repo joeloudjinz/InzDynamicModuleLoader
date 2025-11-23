@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace InzDynamicLoader.Core;
+namespace InzDynamicModuleLoader.Core;
 
 internal static class ModuleRegistry
 {
@@ -17,10 +17,10 @@ internal static class ModuleRegistry
 
     public static void InstantiateModuleDefinitions()
     {
-        InzConsole.Headline("InstantiateModuleDefinitions()");
+        // InzConsole.Headline("InstantiateModuleDefinitions()");
         foreach (var (key, assembly) in AssembliesMap)
         {
-            InzConsole.FirstLevelItem($"Assembly: [{key}]");
+            // InzConsole.FirstLevelItem($"Assembly: [{key}]");
             var types = assembly.GetTypes()
                 .Where(t =>
                     t.GetInterfaces().Any(ti => ti.FullName!.Equals(typeof(IAmModule).FullName)) &&
@@ -28,16 +28,16 @@ internal static class ModuleRegistry
                 ).ToList();
             if (types.Count == 0)
             {
-                InzConsole.WarningWithNewLine($"No IAmModule implementation found in assembly [{key}]");
+                InzConsole.Warning($"No IAmModule implementation found in assembly [{key}]");
                 continue;
             }
 
             if (types.Count != 1) throw new Exception($"IAmModule contract must have only one implementation in assembly [{key}]");
 
             ModuleDefinitionsMap.Add(key, Activator.CreateInstance(types.First()) as IAmModule ?? throw new Exception($"Could not cast type {types.First().Name} to IAmModule"));
-            InzConsole.SuccessWithNewLine($"IModule definition created for [{key}]");
+            InzConsole.Success($"IModule definition created for [{key}]");
         }
 
-        InzConsole.EndHeadline();
+        // InzConsole.EndHeadline();
     }
 }

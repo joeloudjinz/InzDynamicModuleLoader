@@ -1,41 +1,42 @@
-namespace InzDynamicLoader.Core;
+namespace InzDynamicModuleLoader.Core;
 
 internal static class InzConsole
 {
+    private static string Prefix => "[InzConsole] ";
     public static void Headline(string content)
     {
-        Console.WriteLine($"[{DateTimeOffset.Now:F}] ======= {content} =======");
+        Console.WriteLine($"{Prefix}[{DateTimeOffset.Now.TimeOfDay:c}] ======= {content} =======");
     }
 
     public static void EndHeadline()
     {
-        Console.WriteLine($"[{DateTimeOffset.Now:u}] ==============");
+        Console.WriteLine($"{Prefix}[{DateTimeOffset.Now.TimeOfDay:c}] ==============");
         Console.WriteLine();
     }
 
     public static void Log(string message)
     {
-        Console.WriteLine(message);
+        Console.WriteLine($"{Prefix}{message}");
     }
 
     public static void FirstLevelItem(string message)
     {
-        Console.WriteLine($"|-👉 {message}");
+        Console.WriteLine($"{Prefix}-> {message}");
     }
 
     public static void SecondLevelItem(string message)
     {
-        Console.WriteLine($"|---👉 {message}");
+        Console.WriteLine($"{Prefix}---> {message}");
     }
 
     public static void ThirdLevelItem(string message)
     {
-        Console.WriteLine($"|-----👉 {message}");
+        Console.WriteLine($"{Prefix}-----> {message}");
     }
 
     public static void LogWithNewLine(string message)
     {
-        Console.WriteLine(message);
+        Console.WriteLine($"{Prefix}-> {message}");
         Console.WriteLine();
     }
 
@@ -43,7 +44,7 @@ internal static class InzConsole
     {
         Console.BackgroundColor = ConsoleColor.Green;
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("🥳 " + message);
+        Console.WriteLine(Prefix + "🥳 " + message);
         Console.ResetColor();
     }
 
@@ -51,7 +52,7 @@ internal static class InzConsole
     {
         Console.BackgroundColor = ConsoleColor.Green;
         Console.ForegroundColor = ConsoleColor.White;
-        Console.Write("🥳 " + message);
+        Console.Write(Prefix + "🥳 " + message);
         Console.ResetColor();
         Console.WriteLine();
         Console.WriteLine();
@@ -59,12 +60,12 @@ internal static class InzConsole
     
     public static void Error(string message)
     {
-        Console.Error.WriteLine("🤬 " + message);
+        Console.Error.WriteLine($"{Prefix}-> {message}");
     }
 
     public static void ErrorWithNewLine(string message)
     {
-        Console.Error.WriteLine(message);
+        Console.Error.WriteLine($"{Prefix}-> {message}");
         Console.WriteLine();
     }
 
@@ -72,7 +73,7 @@ internal static class InzConsole
     {
         Console.BackgroundColor = ConsoleColor.Yellow;
         Console.ForegroundColor = ConsoleColor.Black;
-        Console.WriteLine("😑 " + message);
+        Console.WriteLine($"{Prefix}-> {message}");
         Console.ResetColor();
     }
 
@@ -80,7 +81,7 @@ internal static class InzConsole
     {
         Console.BackgroundColor = ConsoleColor.Yellow;
         Console.ForegroundColor = ConsoleColor.Black;
-        Console.Write("😑 " + message);
+        Console.Write($"{Prefix}-> {message}");
         Console.ResetColor();
         Console.WriteLine();
         Console.WriteLine();

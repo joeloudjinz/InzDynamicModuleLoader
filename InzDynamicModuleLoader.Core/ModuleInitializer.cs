@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace InzDynamicLoader.Core;
+namespace InzDynamicModuleLoader.Core;
 
 internal static class ModuleInitializer
 {

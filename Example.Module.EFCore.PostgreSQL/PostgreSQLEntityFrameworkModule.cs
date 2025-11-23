@@ -1,7 +1,7 @@
 ﻿using Example.Module.Common.Configurations;
 using Example.Module.Common.Contracts;
 using Example.Module.EFCore.Repositories;
-using InzDynamicLoader.Core;
+using InzDynamicModuleLoader.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
