@@ -175,18 +175,18 @@ After setup, your solution will have this structure:
 ```
 YourSolution/
 ├── MainApplication/          # Your main application
-├── Module1/                  # First module project
-├── Module2/                  # Second module project
+├── MyExampleModule/          # First module project
+├── MyOtherModule/            # Second module project
 ├── Directory.Build.targets   # Build configuration
 ├── Directory.Packages.props  # Centralized package versions
 └── BuiltModules/             # Automatically created - contains compiled modules
-    ├── Module1/
-    │   ├── Module1.dll
-    │   ├── Module1.deps.json
+    ├── MyExampleModule/
+    │   ├── MyExampleModule.dll
+    │   ├── MyExampleModule.deps.json
     │   └── Dependencies...
-    └── Module2/
-        ├── Module2.dll
-        ├── Module2.deps.json
+    └── MyOtherModule/
+        ├── MyOtherModule.dll
+        ├── MyOtherModule.deps.json
         └── Dependencies...
 ```
 
