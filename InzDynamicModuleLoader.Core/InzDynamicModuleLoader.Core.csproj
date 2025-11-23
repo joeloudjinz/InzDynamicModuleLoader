@@ -9,24 +9,32 @@
         <Version>1.0.0</Version>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <FileVersion>1.0.0.0</FileVersion>
-        <Authors>InzSoftware</Authors>
-        <Company>InzSoftware</Company>
-        <Product>Inz Dynamic Module Loader</Product>
+        <Authors>Abdellah Addoun</Authors>
+        <Company>InzSoftwares</Company>
+        <Product>InzSoftwares.NetDynamicModuleLoader</Product>
         <Description>
-            A .NET 9.0 library that enables plugin-based architecture by loading modules at runtime. This allows for better separation of concerns,
-            module isolation, and flexible infrastructure switching based on configuration while maintaining clean architecture boundaries.
+            A .NET 9.0 library that enables plugin-based architecture by loading modules at startup time. This allows for better separation of concerns,
+            module isolation, and flexible modules switching based on configuration while maintaining clean architecture boundaries.
         </Description>
         <PackageProjectUrl>https://github.com/InzSoftware/InzDynamicLoader</PackageProjectUrl>
         <RepositoryUrl>https://github.com/InzSoftware/InzDynamicLoader</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>dotnet;modules;plugins;modular-architecture;dynamic-loading;dependency-injection</PackageTags>
+        <PackageTags>
+            modularity;module;modules;plugin;plugins;modular-architecture;dynamic-loading;plug-and-play;plugins-architecture;isolation;module-separation
+        </PackageTags>
         <Copyright>Copyright (c) Abdellah Addoun 2025</Copyright>
 
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\InzDynamicLoader.xml</DocumentationFile>
+
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
 
     <ItemGroup>
