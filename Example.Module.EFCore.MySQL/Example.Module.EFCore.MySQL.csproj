@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsModuleProject>true</IsModuleProject>
+      <UserSecretsId>cb09ad34-5ca8-46c9-bd47-16e6a81387af</UserSecretsId>
+  </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Example.Module.Common\Example.Module.Common.csproj" />
+        <ProjectReference Include="..\Example.Module.EFCore.Repositories\Example.Module.EFCore.Repositories.csproj" />
+        <ProjectReference Include="..\InzDynamicLoader.Core\InzDynamicLoader.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>
