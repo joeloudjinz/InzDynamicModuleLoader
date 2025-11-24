@@ -6,9 +6,9 @@
         <Nullable>enable</Nullable>
 
         <PackageId>InzSoftwares.NetDynamicModuleLoader</PackageId>
-        <Version>1.0.0</Version>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
-        <FileVersion>1.0.0.0</FileVersion>
+        <Version>1.0.1</Version>
+        <AssemblyVersion>1.0.1.0</AssemblyVersion>
+        <FileVersion>1.0.1.0</FileVersion>
         <Authors>Abdellah Addoun</Authors>
         <Company>InzSoftwares</Company>
         <Product>InzSoftwares.NetDynamicModuleLoader</Product>
@@ -45,12 +45,6 @@
 
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="\"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Microsoft.Extensions.Hosting.Abstractions">
-        <HintPath>..\..\..\..\..\..\..\..\usr\local\share\dotnet\shared\Microsoft.AspNetCore.App\9.0.3\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>
