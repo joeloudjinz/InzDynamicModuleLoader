@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,24 +21,13 @@ public static class InzDynamicLoaderExtensions
         var moduleNames = configuration.GetSection(Constants.ModulesConfigurationLabel).Get<string[]>() ?? [];
         if (moduleNames.Length == 0) throw new InvalidOperationException("No modules are specified in configuration");
 
-        // Force a GC before starting to get a clean memory baseline
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        var startMem = GC.GetTotalMemory(true);
+        IModuleManager moduleManager = new ModuleManagerService();
+        services.AddSingleton(moduleManager);
 
-        // High-precision timer
-        var stopwatch = Stopwatch.StartNew();
+        moduleManager.LoadModules(moduleNames);
+        if (moduleManager.LoadedModuleDefinitions.Count == 0) throw new InvalidOperationException("No modules were loaded!");
 
-        // ModuleLoader.Load(moduleNames);
-        ModuleLoader.Load(moduleNames);
-
-        stopwatch.Stop();
-        var endMem = GC.GetTotalMemory(false);
-
-        // Output a special tag for our benchmark runner to catch
-        InzConsole.SuccessWithNewLine($"[InzDynamicModuleLoader] Loading Time:{stopwatch.Elapsed.TotalMilliseconds:F4} ms | Memory Delta:{(endMem - startMem) / 1000} Kb");
-
-        foreach (var module in ModuleRegistry.LoadedModuleDefinitions) module.RegisterServices(services, configuration);
+        foreach (var module in moduleManager.LoadedModuleDefinitions) module.RegisterServices(services, configuration);
     }
 
     /// <summary>
@@ -51,8 +39,10 @@ public static class InzDynamicLoaderExtensions
     /// <exception cref="System.Exception">Thrown when no assemblies have been loaded yet.</exception>
     public static void InitializeModules(this IServiceProvider services, IConfiguration configuration)
     {
-        if (ModuleRegistry.LoadedAssemblies.Count == 0) throw new InvalidOperationException("No modules were loaded!");
+        var moduleManager = services.GetRequiredService<IModuleManager>();
+        if (moduleManager is null) throw new InvalidOperationException("The module manager is not initialized!");
+        if (moduleManager.LoadedModuleDefinitions.Count == 0) throw new InvalidOperationException("No modules were loaded!");
 
-        ModuleInitializer.Initialize(services, configuration);
+        foreach (var module in moduleManager.LoadedModuleDefinitions) module.InitializeServices(services, configuration);
     }
 }

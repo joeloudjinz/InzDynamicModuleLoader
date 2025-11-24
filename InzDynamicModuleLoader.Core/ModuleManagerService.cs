@@ -6,59 +6,55 @@ using System.Runtime.Loader;
 namespace InzDynamicModuleLoader.Core;
 
 /// <summary>
-/// Module loader responsible for dynamically loading assemblies and resolving their dependencies.
-/// Implements an optimized dependency resolution strategy with caching and locality-based resolution.
+/// Service for managing the entire module lifecycle (loading, registration, initialization).
 /// </summary>
-internal static class ModuleLoader
+internal class ModuleManagerService : IModuleManager
 {
     /// <summary>
     /// Maps each loaded module assembly to its specific dependency resolver.
     /// This enables checking the module's parent folder first when resolving dependencies.
     /// </summary>
-    private static readonly Dictionary<Assembly, AssemblyDependencyResolver> ModuleResolvers = new();
+    private readonly Dictionary<Assembly, AssemblyDependencyResolver> _moduleResolvers = new();
 
     /// <summary>
     /// Collection of dependency resolvers used for fallback resolution when the requesting assembly is unknown.
     /// </summary>
-    private static readonly List<AssemblyDependencyResolver> GlobalResolvers = [];
+    private readonly List<AssemblyDependencyResolver> _globalResolvers = [];
 
     /// <summary>
     /// Caches assembly name to file path mappings to avoid redundant file system checks.
     /// This transforms O(N) file checks into O(1) memory lookups for faster dependency resolution.
     /// </summary>
-    private static readonly ConcurrentDictionary<string, string?> ResolutionCache = new();
+    private readonly ConcurrentDictionary<string, string?> _resolutionCache = new();
 
     /// <summary>
-    /// Loads the specified modules from the default modules root directory determined by the execution environment.
+    /// Collection of loaded module definitions.
     /// </summary>
-    /// <param name="moduleNames">An array of module names to load.</param>
-    /// <exception cref="InvalidOperationException">Thrown when no modules were successfully loaded.</exception>
-    public static void Load(string[] moduleNames)
-    {
-        Load(moduleNames, GetModulesRootDirectory());
-    }
+    public List<IAmModule> LoadedModuleDefinitions { get; } = [];
 
-    /// <summary>
-    /// Loads the specified modules from the given root path and registers the assembly resolver.
-    /// This method hooks the AssemblyResolve event, loads modules, and instantiates module definitions.
-    /// </summary>
-    /// <param name="moduleNames">An array of module names to load.</param>
-    /// <param name="rootPath">The root directory where modules are located.</param>
-    /// <exception cref="InvalidOperationException">Thrown when no modules were successfully loaded, or one module could not be loaded.</exception>
-    internal static void Load(string[] moduleNames, string rootPath)
+    public void LoadModules(string[] moduleNames)
     {
+        if (moduleNames.Length == 0) throw new InvalidOperationException("No modules are specified in configuration");
+
         // Hook the assembly resolution event to handle dependency loading
         AppDomain.CurrentDomain.AssemblyResolve += ResolveDependencies;
 
-        var modulesRootPath = rootPath;
-        // InzConsole.Log($"Modules Root Path: [{modulesRootPath}]");
+        var loadedAssemblies = LoadModules(moduleNames, GetModulesRootDirectory());
 
+        // Instantiate the module definitions after all modules are loaded
+        InstantiateModuleDefinitions(loadedAssemblies);
+    }
+
+    internal List<Assembly> LoadModules(string[] moduleNames, string rootPath)
+    {
+        List<Assembly> loadedAssemblies = [];
         foreach (var moduleName in moduleNames)
         {
             try
             {
-                var modulePath = Path.Combine(modulesRootPath, moduleName, $"{moduleName}.dll");
-                LoadModule(moduleName, modulePath);
+                var modulePath = Path.Combine(rootPath, moduleName, $"{moduleName}.dll");
+                var assembly = LoadModule(modulePath);
+                loadedAssemblies.Add(assembly);
             }
             catch (Exception ex)
             {
@@ -67,19 +63,10 @@ internal static class ModuleLoader
             }
         }
 
-        // Instantiate the module definitions after all modules are loaded
-        ModuleRegistry.InstantiateModuleDefinitions();
+        return loadedAssemblies;
     }
 
-    /// <summary>
-    /// Loads a single module from the specified file path, creating a dependency resolver and registering it.
-    /// This method handles the complete process of loading a module: creating a resolver, loading into the
-    /// default context, and establishing the resolver mapping for dependency resolution.
-    /// </summary>
-    /// <param name="moduleName">The name of the module being loaded.</param>
-    /// <param name="filePath">The full path to the module assembly file.</param>
-    /// <exception cref="FileNotFoundException">Thrown when the module file does not exist at the specified path.</exception>
-    private static void LoadModule(string moduleName, string filePath)
+    internal Assembly LoadModule(string filePath)
     {
         if (!File.Exists(filePath)) throw new FileNotFoundException($"Module not found at {filePath}");
 
@@ -87,20 +74,41 @@ internal static class ModuleLoader
         var resolver = new AssemblyDependencyResolver(filePath);
 
         // Add to global resolvers list for fallback searches when requesting assembly is unknown
-        GlobalResolvers.Add(resolver);
+        _globalResolvers.Add(resolver);
 
         // Load the assembly into the default load context
         var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(filePath);
 
         // Establish the mapping: "If THIS assembly requests dependencies, check THIS resolver first"
-        lock (ModuleResolvers)
+        lock (_moduleResolvers)
         {
-            ModuleResolvers[assembly] = resolver;
+            _moduleResolvers[assembly] = resolver;
         }
 
-        // Register the loaded assembly with the module registry for later instantiation
-        ModuleRegistry.Add(assembly);
-        // InzConsole.SuccessWithNewLine($"Loaded: {moduleName}");
+        return assembly;
+    }
+
+    internal void InstantiateModuleDefinitions(List<Assembly> loadedAssemblies)
+    {
+        foreach (var assembly in loadedAssemblies)
+        {
+            var assemblyName = assembly.GetName().Name!;
+            var types = assembly.GetTypes()
+                .Where(t =>
+                    t.GetInterfaces().Any(ti => ti.FullName!.Equals(typeof(IAmModule).FullName)) &&
+                    t is { IsInterface: false, IsAbstract: false }
+                ).ToList();
+            if (types.Count == 0)
+            {
+                InzConsole.Warning($"No IAmModule implementation found in assembly [{assemblyName}]");
+                continue;
+            }
+
+            if (types.Count != 1) throw new Exception($"IAmModule contract must have only one implementation in assembly [{assemblyName}]");
+
+            LoadedModuleDefinitions.Add(Activator.CreateInstance(types.First()) as IAmModule ?? throw new Exception($"Could not cast type {types.First().Name} to IAmModule"));
+            InzConsole.Success($"IModule definition created for [{assemblyName}]");
+        }
     }
 
     /// <summary>
@@ -111,7 +119,7 @@ internal static class ModuleLoader
     /// <param name="sender">The source of the event (typically an AppDomain).</param>
     /// <param name="args">Arguments containing information about the assembly being resolved.</param>
     /// <returns>The resolved assembly, or null if resolution failed.</returns>
-    private static Assembly? ResolveDependencies(object? sender, ResolveEventArgs args)
+    private Assembly? ResolveDependencies(object? sender, ResolveEventArgs args)
     {
         // OPTIMIZATION: Filter out resources early.
         // The CLR fires this event for .resources.dll which often don't exist.
@@ -125,7 +133,7 @@ internal static class ModuleLoader
 
             // 1. Check the Cache (O(1) lookup)
             // We use the full name as key to ensure version exactness.
-            if (ResolutionCache.TryGetValue(args.Name, out var cachedPath))
+            if (_resolutionCache.TryGetValue(args.Name, out var cachedPath))
             {
                 return cachedPath != null ? LoadAssemblyFromPathSafe(cachedPath) : null;
             }
@@ -137,9 +145,9 @@ internal static class ModuleLoader
             // If we know who is asking (RequestingAssembly), check THEIR folder first.
             if (args.RequestingAssembly != null)
             {
-                lock (ModuleResolvers)
+                lock (_moduleResolvers)
                 {
-                    if (ModuleResolvers.TryGetValue(args.RequestingAssembly, out var localResolver))
+                    if (_moduleResolvers.TryGetValue(args.RequestingAssembly, out var localResolver))
                     {
                         resolvedPath = localResolver.ResolveAssemblyToPath(assemblyName);
                         if (resolvedPath != null)
@@ -154,7 +162,7 @@ internal static class ModuleLoader
             // Only do this if the local check failed.
             if (resolvedPath == null)
             {
-                foreach (var resolver in GlobalResolvers)
+                foreach (var resolver in _globalResolvers)
                 {
                     resolvedPath = resolver.ResolveAssemblyToPath(assemblyName);
                     if (resolvedPath != null) break; // Found it!
@@ -163,7 +171,7 @@ internal static class ModuleLoader
 
             // 4. Update Cache
             // Whether we found it (path) or not (null), cache the result to avoid future searches.
-            ResolutionCache.TryAdd(args.Name, resolvedPath);
+            _resolutionCache.TryAdd(args.Name, resolvedPath);
 
             return resolvedPath == null ? null : LoadAssemblyFromPathSafe(resolvedPath);
         }

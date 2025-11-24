@@ -1,6 +1,6 @@
-# Inz Dynamic Module Loader
+# InzSoftwares - Net Dynamic Module Loader
 
-The Inz Dynamic Module Loader is a .NET 9.0 library that enables plugin-based architecture by loading modules at startup time. This allows for better
+InzSoftwares.NetDynamicModuleLoader is a .NET 9.0 library that enables plugin-based architecture by loading modules at startup time. This allows for better
 separation of concerns, module isolation, and flexible infrastructure switching while maintaining clean architecture boundaries.
 
 ## Table of Contents
