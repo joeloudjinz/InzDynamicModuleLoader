@@ -8,6 +8,7 @@
     - [Database Provider Implementations](#database-provider-implementations)
     - [Common EF Core Repository](#common-ef-core-repository)
     - [Web Startup Project](#web-startup-project)
+    - [Console Startup Project](#console-startup-project)
 - [How to run the example](#how-to-run-the-example)
     - [Prerequisites](#prerequisites)
     - [Create The Databases](#create-the-databases)
@@ -15,6 +16,11 @@
     - [Update WebStartup Configuration](#update-webstartup-configuration)
     - [Build](#build)
     - [RUN](#run)
+- [Console Application Alternative](#console-application-alternative)
+    - [Console Startup Features](#console-startup-features)
+    - [Console Startup Configuration](#console-startup-configuration)
+    - [How to run the Console Example](#how-to-run-the-console-example)
+    - [Console Example Usage](#console-example-usage)
 
 ## Overview
 
@@ -79,6 +85,14 @@ Example.Module.WebStartup/
 ├── Program.cs                              # Main application entry point
 ├── appsettings.json                        # Configuration file
 └── appsettings.Development.json            # Development-specific configuration
+```
+
+### Console Startup Project
+
+```
+Example.Module.ConsoleStartup/
+├── Example.Module.ConsoleStartup.csproj     # Console startup project file
+├── Program.cs                              # Main application entry point
 ```
 
 ## How to run the example
@@ -192,3 +206,61 @@ dotnet run --project Example.Module.WebStartup
 
 The application will dynamically load the specified modules based on the configuration, register services, and perform a database test by creating,
 retrieving, and deleting a test entity, demonstrating the runtime flexibility of the modular architecture.
+
+## Console Application Alternative
+
+The example also includes a console application alternative that demonstrates dynamic module loading in a console application context. The console application uses environment variables and user secrets for configuration instead of appsettings.json files.
+
+### Console Startup Features
+
+- Programmatically sets environment variables to specify which modules to load
+- Uses user-secrets for sensitive configuration like connection strings
+- Demonstrates dynamic module loading in a console application context
+
+### Console Startup Configuration
+
+The console application programmatically sets environment variables for module configuration at startup:
+
+```csharp
+// Set environment variable for modules to load (comma-separated string format)
+Environment.SetEnvironmentVariable("Modules__0", "Example.Module.EFCore.MySQL");
+Environment.SetEnvironmentVariable("Modules__1", "Example.Module.EFCore.Repositories");
+```
+
+Configure your database connection string using user secrets:
+
+```bash
+# For MySQL
+dotnet user-secrets set "Database:ConnectionString" "your-mysql-connection-string" -p Example.Module.ConsoleStartup
+
+# For PostgreSQL
+dotnet user-secrets set "Database:ConnectionString" "your-postgresql-connection-string" -p Example.Module.ConsoleStartup
+```
+
+### How to run the Console Example
+
+1. Ensure the required database (MySQL or PostgreSQL) is running
+2. Configure the connection string using user secrets
+3. Run the application:
+
+```bash
+# Build all projects first
+dotnet build
+
+# Run the console application
+dotnet run --project Example.Module.ConsoleStartup
+```
+
+### Console Example Usage
+
+The console application has the module configuration set programmatically in the code. To run with different database providers, you can modify the environment variable settings in the Program.cs file or use user secrets to configure the database connection:
+
+```bash
+# Example for MySQL
+dotnet user-secrets set "Database:ConnectionString" "Server=localhost;Database=testdb;Uid=user;Pwd=password;" -p Example.Module.ConsoleStartup
+dotnet run --project Example.Module.ConsoleStartup
+
+# Example for PostgreSQL
+dotnet user-secrets set "Database:ConnectionString" "Host=localhost;Database=testdb;Username=user;Password=password;" -p Example.Module.ConsoleStartup
+dotnet run --project Example.Module.ConsoleStartup
+```
