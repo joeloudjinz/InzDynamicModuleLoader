@@ -1,5 +1,5 @@
 # GitHub Actions workflow to publish NuGet package using trusted publishing
-name: Publish Core NuGet Package
+name: Publish Abstractions NuGet Package
 
 on:
   workflow_dispatch:
@@ -40,7 +40,7 @@ jobs:
       
       # Step 5: Create the NuGet package
       - name: Pack NuGet package
-        run: dotnet pack InzDynamicModuleLoader.Core/InzDynamicModuleLoader.Core.csproj --no-build --configuration Release --output ./nupkg  # Package the library into a .nupkg file
+        run: dotnet pack InzDynamicModuleLoader.Abstractions/InzDynamicModuleLoader.Abstractions.csproj --no-build --configuration Release --output ./nupkg  # Package the library into a .nupkg file
       
       # Step 6: Extract version from input
       - name: Extract version from input
@@ -63,6 +63,6 @@ jobs:
       - name: Publish to NuGet.org
         run: |
           # Construct the package file name using the extracted version
-          PACKAGE_PATH="./nupkg/InzSoftwares.NetDynamicModuleLoader.${{ steps.version.outputs.version }}.nupkg"
+          PACKAGE_PATH="./nupkg/InzSoftwares.NetDynamicModuleLoader.Abstractions.${{ steps.version.outputs.version }}.nupkg"
           echo "Publishing package: $PACKAGE_PATH"
           dotnet nuget push "$PACKAGE_PATH" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json

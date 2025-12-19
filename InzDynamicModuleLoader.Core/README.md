@@ -1,7 +1,14 @@
 # InzSoftwares - Net Dynamic Module Loader
 
-InzSoftwares.NetDynamicModuleLoader is a .NET 9.0 library that enables plugin-based architecture by loading modules at startup time. This allows for better
+[![NuGet Version](https://img.shields.io/nuget/v/InzSoftwares.NetDynamicModuleLoader.svg)](https://www.nuget.org/packages/InzSoftwares.NetDynamicModuleLoader/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/InzSoftwares.NetDynamicModuleLoader.svg)](https://www.nuget.org/packages/InzSoftwares.NetDynamicModuleLoader/)
+
+InzSoftwares.NetDynamicModuleLoader is a .NET 9.0 library that enables plugin-based architecture by loading modules at startup time. This allows for
+better
 separation of concerns, module isolation, and flexible infrastructure switching while maintaining clean architecture boundaries.
+
+**Abstractions library**: [InzSoftwares.NetDynamicModuleLoader.Abstractions](https://www.nuget.org/packages/InzSoftwares.NetDynamicModuleLoader.Abstractions),
+this library contains the abstraction layer files like `IAmModule`.
 
 ## Table of Contents
 

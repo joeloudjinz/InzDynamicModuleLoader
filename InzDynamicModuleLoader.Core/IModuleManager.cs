@@ -1,3 +1,5 @@
+using InzDynamicModuleLoader.Abstractions;
+
 namespace InzDynamicModuleLoader.Core;
 
 internal interface IModuleManager
