@@ -96,7 +96,7 @@ internal class ModuleManagerService : IModuleManager
             var assemblyName = assembly.GetName().Name!;
             var types = assembly.GetTypes()
                 .Where(t =>
-                    t.GetInterfaces().Any(ti => ti.FullName!.Equals(typeof(IAmModule).FullName)) &&
+                    t.GetInterfaces().Any(ti => ti.FullName is not null && ti.FullName!.Equals(typeof(IAmModule).FullName)) &&
                     t is { IsInterface: false, IsAbstract: false }
                 ).ToList();
             if (types.Count == 0)
