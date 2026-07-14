@@ -12,13 +12,15 @@ public static class ReportWriter
 
     public static Row Summarize(IReadOnlyList<ProbeResult> runs)
     {
-        var cold = runs.FirstOrDefault(r => r.Iteration == 0) ?? runs[0];
+        // No Iteration==0 record means the cold sample failed; report NaN rather than
+        // mislabeling a warm sample as cold (the table's :F1 renders "NaN", flagging it).
+        var cold = runs.FirstOrDefault(r => r.Iteration == 0);
         var warm = runs.Where(r => r.Iteration > 0).ToList();
         if (warm.Count == 0) warm = runs.ToList();
         double[] warmTotals = warm.Select(r => r.TotalMs).ToArray();
         var f = runs[0];
         return new Row(f.ConfigId, f.Variant, f.ModuleCount,
-            cold.TotalMs, Aggregation.Median(warmTotals),
+            cold?.TotalMs ?? double.NaN, Aggregation.Median(warmTotals),
             Aggregation.Percentile(warmTotals, 25), Aggregation.Percentile(warmTotals, 75),
             Aggregation.Median(warm.Select(r => r.LoadTotalMs).ToArray()),
             Aggregation.Median(warm.Select(r => r.DiscoveryMs).ToArray()),
