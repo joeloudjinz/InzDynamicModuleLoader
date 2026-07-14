@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicModuleLoader.Benc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicModuleLoader.BaselineRunner", "benchmarks\InzDynamicModuleLoader.BaselineRunner\InzDynamicModuleLoader.BaselineRunner.csproj", "{FB70BBBA-F031-44E3-8038-B4913BA2282E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicModuleLoader.StartupProbe", "benchmarks\InzDynamicModuleLoader.StartupProbe\InzDynamicModuleLoader.StartupProbe.csproj", "{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -185,6 +187,18 @@ Global
 		{FB70BBBA-F031-44E3-8038-B4913BA2282E}.Release|x64.Build.0 = Release|Any CPU
 		{FB70BBBA-F031-44E3-8038-B4913BA2282E}.Release|x86.ActiveCfg = Release|Any CPU
 		{FB70BBBA-F031-44E3-8038-B4913BA2282E}.Release|x86.Build.0 = Release|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Debug|x64.Build.0 = Debug|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Debug|x86.Build.0 = Debug|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Release|x64.ActiveCfg = Release|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Release|x64.Build.0 = Release|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Release|x86.ActiveCfg = Release|Any CPU
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -199,5 +213,6 @@ Global
 		{B110B51C-3EA7-4142-9B83-27B49193B128} = {66320409-64EC-F7C5-3DEF-65E7510DAAD1}
 		{FD199CD3-47D5-4F50-9C81-012F0A6731D3} = {66320409-64EC-F7C5-3DEF-65E7510DAAD1}
 		{FB70BBBA-F031-44E3-8038-B4913BA2282E} = {66320409-64EC-F7C5-3DEF-65E7510DAAD1}
+		{B4725AB6-5E77-4261-A0D8-8D49E6D3C6EB} = {66320409-64EC-F7C5-3DEF-65E7510DAAD1}
 	EndGlobalSection
 EndGlobal
