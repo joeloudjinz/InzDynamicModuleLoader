@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using InzDynamicModuleLoader.Core.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,10 +26,13 @@ public static class InzDynamicLoaderExtensions
         IModuleManager moduleManager = new ModuleManagerService();
         services.AddSingleton(moduleManager);
 
+        var sw = Stopwatch.StartNew();
         moduleManager.LoadModules(moduleNames);
         if (moduleManager.LoadedModuleDefinitions.Count == 0) throw new InvalidOperationException("No modules were loaded!");
 
         foreach (var module in moduleManager.LoadedModuleDefinitions) module.RegisterServices(services, configuration);
+        sw.Stop();
+        ModuleLoaderEventSource.Log.RegisterModules(sw.Elapsed.TotalMilliseconds);
     }
 
     /// <summary>
@@ -43,6 +48,9 @@ public static class InzDynamicLoaderExtensions
         if (moduleManager is null) throw new InvalidOperationException("The module manager is not initialized!");
         if (moduleManager.LoadedModuleDefinitions.Count == 0) throw new InvalidOperationException("No modules were loaded!");
 
+        var sw = Stopwatch.StartNew();
         foreach (var module in moduleManager.LoadedModuleDefinitions) module.InitializeServices(services, configuration);
+        sw.Stop();
+        ModuleLoaderEventSource.Log.InitializeModules(sw.Elapsed.TotalMilliseconds);
     }
 }
