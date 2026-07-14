@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> Development conventions — branching (PRs against `dev`), Semantic Versioning, Conventional Commits, code style, and XML documentation — live in [`Conventions.md`](Conventions.md). Follow them for all changes.
+
 ## What this is
 
 A .NET 9.0 library (shipped as two NuGet packages) that gives a host application a plugin architecture: modules are compiled to standalone assemblies, discovered on disk at startup, and registered into the host's DI container based on configuration. The headline use case is swapping infrastructure (e.g. MySQL vs PostgreSQL) without recompiling the host — you change a config list, not code.
