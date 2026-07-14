@@ -17,5 +17,5 @@ public sealed record ProbeResult
     public required int ResolveCount { get; init; }
     public required double CacheHitRatio { get; init; }
     public required long ManagedMemDeltaBytes { get; init; }
-    public required long PeakWorkingSetBytes { get; init; }
+    public required long WorkingSetBytes { get; init; }
 }

@@ -13,6 +13,9 @@ internal sealed class ProbeEventListener : EventListener
 
     protected override void OnEventSourceCreated(EventSource source)
     {
+        // MUST stay in sync with ModuleLoaderEventSource's [EventSource(Name = ...)] in Core.
+        // Intentionally not sharing a constant to avoid touching Core's public surface;
+        // the smoke test + a Group-4 runner guard cover the silent-failure risk if this drifts.
         if (source.Name == "InzSoftwares-DynamicModuleLoader")
             EnableEvents(source, EventLevel.Informational);
     }
