@@ -95,7 +95,7 @@ internal class ModuleManagerService : IModuleManager
 
     internal void InstantiateModuleDefinitions(List<Assembly> loadedAssemblies)
     {
-        var sw = Stopwatch.StartNew();
+        using var _ = new PhaseTimer(ModuleLoaderEventSource.Log.Discovery);
         foreach (var assembly in loadedAssemblies)
         {
             var assemblyName = assembly.GetName().Name!;
@@ -115,9 +115,6 @@ internal class ModuleManagerService : IModuleManager
             LoadedModuleDefinitions.Add(Activator.CreateInstance(types.First()) as IAmModule ?? throw new Exception($"Could not cast type {types.First().Name} to IAmModule"));
             InzConsole.Success($"IModule definition created for [{assemblyName}]");
         }
-
-        sw.Stop();
-        ModuleLoaderEventSource.Log.Discovery(sw.Elapsed.TotalMilliseconds);
     }
 
     /// <summary>
