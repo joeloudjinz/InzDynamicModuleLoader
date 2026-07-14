@@ -9,7 +9,6 @@ public static class Aggregation
     {
         if (values.Count == 0) throw new ArgumentException("values must be non-empty", nameof(values));
         var sorted = values.OrderBy(v => v).ToArray();
-        if (sorted.Length == 1) return sorted[0];
         var rank = (p / 100.0) * (sorted.Length - 1);
         var lo = (int)Math.Floor(rank);
         var hi = (int)Math.Ceiling(rank);
