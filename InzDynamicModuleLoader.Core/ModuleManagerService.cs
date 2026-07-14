@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Loader;
 using InzDynamicModuleLoader.Abstractions;
+using InzDynamicModuleLoader.Core.Diagnostics;
 
 namespace InzDynamicModuleLoader.Core;
 
@@ -53,8 +54,11 @@ internal class ModuleManagerService : IModuleManager
         {
             try
             {
+                var sw = Stopwatch.StartNew();
                 var modulePath = Path.Combine(rootPath, moduleName, $"{moduleName}.dll");
                 var assembly = LoadModule(modulePath);
+                sw.Stop();
+                ModuleLoaderEventSource.Log.ModuleLoad(moduleName, sw.Elapsed.TotalMilliseconds);
                 loadedAssemblies.Add(assembly);
             }
             catch (Exception ex)
@@ -91,6 +95,7 @@ internal class ModuleManagerService : IModuleManager
 
     internal void InstantiateModuleDefinitions(List<Assembly> loadedAssemblies)
     {
+        var sw = Stopwatch.StartNew();
         foreach (var assembly in loadedAssemblies)
         {
             var assemblyName = assembly.GetName().Name!;
@@ -110,6 +115,9 @@ internal class ModuleManagerService : IModuleManager
             LoadedModuleDefinitions.Add(Activator.CreateInstance(types.First()) as IAmModule ?? throw new Exception($"Could not cast type {types.First().Name} to IAmModule"));
             InzConsole.Success($"IModule definition created for [{assemblyName}]");
         }
+
+        sw.Stop();
+        ModuleLoaderEventSource.Log.Discovery(sw.Elapsed.TotalMilliseconds);
     }
 
     /// <summary>
@@ -127,6 +135,8 @@ internal class ModuleManagerService : IModuleManager
         if (args.Name.Contains(".resources")) return null;
 
         var stopwatch = Stopwatch.StartNew();
+        var source = "unresolved";
+        var resolvedOk = false;
 
         try
         {
@@ -136,6 +146,8 @@ internal class ModuleManagerService : IModuleManager
             // We use the full name as key to ensure version exactness.
             if (_resolutionCache.TryGetValue(args.Name, out var cachedPath))
             {
+                source = "cache";
+                resolvedOk = cachedPath != null;
                 return cachedPath != null ? LoadAssemblyFromPathSafe(cachedPath) : null;
             }
 
@@ -153,6 +165,7 @@ internal class ModuleManagerService : IModuleManager
                         resolvedPath = localResolver.ResolveAssemblyToPath(assemblyName);
                         if (resolvedPath != null)
                         {
+                            source = "local";
                             InzConsole.Log($"Resolved [{assemblyName.Name}] locally via [{args.RequestingAssembly.GetName().Name}]");
                         }
                     }
@@ -166,7 +179,11 @@ internal class ModuleManagerService : IModuleManager
                 foreach (var resolver in _globalResolvers)
                 {
                     resolvedPath = resolver.ResolveAssemblyToPath(assemblyName);
-                    if (resolvedPath != null) break; // Found it!
+                    if (resolvedPath != null)
+                    {
+                        source = "global";
+                        break; // Found it!
+                    }
                 }
             }
 
@@ -174,11 +191,13 @@ internal class ModuleManagerService : IModuleManager
             // Whether we found it (path) or not (null), cache the result to avoid future searches.
             _resolutionCache.TryAdd(args.Name, resolvedPath);
 
+            resolvedOk = resolvedPath != null;
             return resolvedPath == null ? null : LoadAssemblyFromPathSafe(resolvedPath);
         }
         finally
         {
             stopwatch.Stop();
+            ModuleLoaderEventSource.Log.Resolve(args.Name, resolvedOk ? 1 : 0, source, stopwatch.Elapsed.TotalMilliseconds);
             if (!args.Name.Contains(".resources"))
             {
                 InzConsole.FirstLevelItem($"Dependency resolution for [{args.Name}] took {stopwatch.ElapsedMilliseconds} ms");
