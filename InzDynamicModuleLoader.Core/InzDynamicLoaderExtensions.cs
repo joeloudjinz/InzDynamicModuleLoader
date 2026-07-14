@@ -26,10 +26,10 @@ public static class InzDynamicLoaderExtensions
         IModuleManager moduleManager = new ModuleManagerService();
         services.AddSingleton(moduleManager);
 
-        var sw = Stopwatch.StartNew();
         moduleManager.LoadModules(moduleNames);
         if (moduleManager.LoadedModuleDefinitions.Count == 0) throw new InvalidOperationException("No modules were loaded!");
 
+        var sw = Stopwatch.StartNew();
         foreach (var module in moduleManager.LoadedModuleDefinitions) module.RegisterServices(services, configuration);
         sw.Stop();
         ModuleLoaderEventSource.Log.RegisterModules(sw.Elapsed.TotalMilliseconds);
