@@ -21,6 +21,7 @@ this library contains the abstraction layer files like `IAmModule`.
     - [4. Implement Your Module](#4-implement-your-module)
     - [5. Configure Modules](#5-configure-modules)
     - [6. Register and Initialize Modules](#6-register-and-initialize-modules)
+    - [7. Publish Your Application](#7-publish-your-application)
 - [Project Structure](#project-structure)
 - [Managing Dependencies](#managing-dependencies)
 - [IAmModule Interface Explained](#iammodule-interface-explained)
@@ -174,6 +175,24 @@ app.Services.InitializeModules(builder.Configuration);
 // Continue with your application setup
 app.Run();
 ```
+
+### 7. Publish Your Application
+
+When you publish your host application, your modules are copied automatically into a `Modules` folder next to the executable — which is where the loader looks for them in production:
+
+```shell
+dotnet build                          # builds your modules into BuiltModules/
+dotnet publish YourHost -o ./deploy   # ./deploy/Modules/MyExampleModule/... is created for you
+```
+
+**Build your modules before publishing.** The publish step copies from `BuiltModules/`, which is only populated when your module projects build. If it is missing or empty you will get a build warning and no modules will be copied — the deployed app would then fail at startup with `Could not locate 'Modules' folder`.
+
+Two properties are available if you need them:
+
+| Property | Default | Purpose |
+| --- | --- | --- |
+| `InzModulesSourcePath` | `BuiltModules` next to your solution-root `Directory.Build.targets` | Where modules are copied from. Set it if your modules live elsewhere. |
+| `InzCopyModulesToPublish` | `true` | Set to `false` if you deploy modules another way (for example a Docker `COPY`). |
 
 ## Project Structure
 
