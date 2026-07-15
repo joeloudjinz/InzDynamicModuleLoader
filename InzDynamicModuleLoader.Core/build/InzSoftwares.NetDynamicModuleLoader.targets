@@ -1,0 +1,41 @@
+<Project>
+
+    <PropertyGroup>
+        <!-- Opt-out for hosts that deploy modules another way (e.g. a Docker COPY). -->
+        <InzCopyModulesToPublish Condition="'$(InzCopyModulesToPublish)' == ''">true</InzCopyModulesToPublish>
+
+        <!--
+          Where modules are copied from. Anchored on the solution-root Directory.Build.targets that the
+          module-deployment convention already requires. $(SolutionDir) is not reliable here: it is unset
+          when building a single project (e.g. `dotnet build foo.csproj`).
+        -->
+        <InzModulesRoot Condition="'$(InzModulesRoot)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Directory.Build.targets'))</InzModulesRoot>
+        <InzModulesSourcePath Condition="'$(InzModulesSourcePath)' == '' AND '$(InzModulesRoot)' != ''">$(InzModulesRoot)/BuiltModules</InzModulesSourcePath>
+    </PropertyGroup>
+
+    <!--
+      Copies every built module into {publishDir}/Modules/{ModuleName}/ so a published host finds them at
+      runtime: ModuleManagerService looks for a "Modules" folder next to the executable in production.
+      The modules must already be built - build your module projects before publishing a host.
+    -->
+    <Target Name="CopyModulesToPublish" AfterTargets="Publish"
+            Condition="'$(InzCopyModulesToPublish)' == 'true' AND '$(IsModuleProject)' != 'true'">
+
+        <ItemGroup>
+            <InzModuleFile Include="$(InzModulesSourcePath)/**/*.*"
+                           Condition="'$(InzModulesSourcePath)' != '' AND Exists('$(InzModulesSourcePath)')"/>
+        </ItemGroup>
+
+        <Warning Condition="'@(InzModuleFile)' == ''"
+                 Text="[InzDynamicModuleLoader] No modules were copied to the publish output: '$(InzModulesSourcePath)' is missing or empty. Build your module projects before publishing (e.g. run `dotnet build` on the solution), or set the InzModulesSourcePath property to your modules folder. Set InzCopyModulesToPublish=false to silence this warning."/>
+
+        <Copy Condition="'@(InzModuleFile)' != ''"
+              SourceFiles="@(InzModuleFile)"
+              DestinationFolder="$(PublishDir)Modules/%(RecursiveDir)"
+              SkipUnchangedFiles="true"/>
+
+        <Message Condition="'@(InzModuleFile)' != ''" Importance="High"
+                 Text="[InzDynamicModuleLoader] Copied modules from '$(InzModulesSourcePath)' to '$(PublishDir)Modules/'."/>
+    </Target>
+
+</Project>
