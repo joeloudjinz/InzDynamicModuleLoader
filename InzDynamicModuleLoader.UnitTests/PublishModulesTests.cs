@@ -27,18 +27,10 @@ public class PublishModulesTests
             var host = Path.Combine(repoRoot, "Example.Module.ConsoleStartup", "Example.Module.ConsoleStartup.csproj");
             RunDotnet($"publish \"{host}\" -c Release -o \"{temp.FullName}\" --nologo", repoRoot);
 
-            // 3. Modules must be in the published artifact, with their dependency closure.
-            var mysqlDir = Path.Combine(temp.FullName, "Modules", MySqlModule);
-            Assert.True(File.Exists(Path.Combine(mysqlDir, MySqlModule + ".dll")),
-                $"'{MySqlModule}.dll' is missing from the publish output at {mysqlDir}");
-            Assert.True(File.Exists(Path.Combine(mysqlDir, MySqlModule + ".deps.json")),
-                $"'{MySqlModule}.deps.json' is missing - the module's dependency closure was not copied");
-            Assert.True(Directory.Exists(Path.Combine(temp.FullName, "Modules", RepositoriesModule)),
-                $"'{RepositoriesModule}' is missing from the publish output");
-
+            // 3. Every module must be in the published artifact, with its dependency closure.
             // 4. Modules must live only under Modules/, not loose in the publish root.
-            Assert.False(File.Exists(Path.Combine(temp.FullName, MySqlModule + ".dll")),
-                "a module assembly leaked into the publish root");
+            foreach (var module in new[] { MySqlModule, RepositoriesModule })
+                AssertModulePublished(temp.FullName, module);
 
             // 5. The deployed app must get past module loading. It still fails later on the
             //    database - that is expected and out of scope.
@@ -49,6 +41,23 @@ public class PublishModulesTests
         {
             temp.Delete(recursive: true);
         }
+    }
+
+    /// <summary>
+    /// Asserts a module was published into {publishRoot}/Modules/{module}/ with its dependency closure,
+    /// and that it did not leak loose into the publish root.
+    /// </summary>
+    private static void AssertModulePublished(string publishRoot, string module)
+    {
+        var moduleDir = Path.Combine(publishRoot, "Modules", module);
+        Assert.True(Directory.Exists(moduleDir),
+            $"'{module}' is missing from the publish output at {moduleDir}");
+        Assert.True(File.Exists(Path.Combine(moduleDir, module + ".dll")),
+            $"'{module}.dll' is missing from the publish output at {moduleDir}");
+        Assert.True(File.Exists(Path.Combine(moduleDir, module + ".deps.json")),
+            $"'{module}.deps.json' is missing from {moduleDir} - the module's dependency closure was not copied");
+        Assert.False(File.Exists(Path.Combine(publishRoot, module + ".dll")),
+            $"module assembly '{module}.dll' leaked into the publish root at {publishRoot}");
     }
 
     private static string FindRepoRoot()

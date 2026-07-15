@@ -5,7 +5,8 @@
         <InzCopyModulesToPublish Condition="'$(InzCopyModulesToPublish)' == ''">true</InzCopyModulesToPublish>
 
         <!--
-          Where modules are copied from. Anchored on the solution-root Directory.Build.targets that the
+          Internal seam - not part of the public contract (that is InzCopyModulesToPublish and
+          InzModulesSourcePath). Anchored on the solution-root Directory.Build.targets that the
           module-deployment convention already requires. $(SolutionDir) is not reliable here: it is unset
           when building a single project (e.g. `dotnet build foo.csproj`).
         -->
