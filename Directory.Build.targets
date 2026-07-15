@@ -22,4 +22,11 @@
               DestinationFolder="$(UnifiedModulePath)%(RecursiveDir)"
               SkipUnchangedFiles="true"/>
     </Target>
+
+    <!--
+      Host applications opt in with <IsModuleHost>true</IsModuleHost>. Consumers of the NuGet package get
+      this same file imported automatically by NuGet's build/{PackageId}.targets convention.
+    -->
+    <Import Project="$(MSBuildThisFileDirectory)InzDynamicModuleLoader.Core/build/InzSoftwares.NetDynamicModuleLoader.targets"
+            Condition="'$(IsModuleHost)' == 'true'"/>
 </Project>

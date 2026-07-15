@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
       <UserSecretsId>13046929-92e8-47d3-86ea-73718efc050c</UserSecretsId>
+      <IsModuleHost>true</IsModuleHost>
   </PropertyGroup>
 
     <ItemGroup>
