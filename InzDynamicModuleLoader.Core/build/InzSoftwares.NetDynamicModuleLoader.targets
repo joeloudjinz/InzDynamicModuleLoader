@@ -12,6 +12,9 @@
         -->
         <InzModulesRoot Condition="'$(InzModulesRoot)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Directory.Build.targets'))</InzModulesRoot>
         <InzModulesSourcePath Condition="'$(InzModulesSourcePath)' == '' AND '$(InzModulesRoot)' != ''">$(InzModulesRoot)/BuiltModules</InzModulesSourcePath>
+
+        <!-- Set to true to make a missing module folder stop the build. -->
+        <InzRequireModulesOnPublish Condition="'$(InzRequireModulesOnPublish)' == ''">false</InzRequireModulesOnPublish>
     </PropertyGroup>
 
     <!--
@@ -27,8 +30,15 @@
                            Condition="'$(InzModulesSourcePath)' != '' AND Exists('$(InzModulesSourcePath)')"/>
         </ItemGroup>
 
-        <Warning Condition="'@(InzModuleFile)' == ''"
-                 Text="[InzDynamicModuleLoader] No modules were copied to the publish output: '$(InzModulesSourcePath)' is missing or empty. Build your module projects before publishing (e.g. run `dotnet build` on the solution), or set the InzModulesSourcePath property to your modules folder. Set InzCopyModulesToPublish=false to silence this warning."/>
+        <PropertyGroup>
+            <_InzNoModulesMessage>[InzDynamicModuleLoader] No modules were copied to the publish output. The folder '$(InzModulesSourcePath)' is missing or empty. Build your module projects before you publish a host. If your modules are somewhere else, set the InzModulesSourcePath property. If your host project has its own Directory.Build.targets file, that file moves the search anchor, so set InzModulesSourcePath explicitly. Set InzCopyModulesToPublish=false to turn this step off.</_InzNoModulesMessage>
+        </PropertyGroup>
+
+        <Warning Condition="'@(InzModuleFile)' == '' AND '$(InzRequireModulesOnPublish)' != 'true'"
+                 Code="INZ001" Text="$(_InzNoModulesMessage)"/>
+
+        <Error Condition="'@(InzModuleFile)' == '' AND '$(InzRequireModulesOnPublish)' == 'true'"
+               Code="INZ001" Text="$(_InzNoModulesMessage)"/>
 
         <Copy Condition="'@(InzModuleFile)' != ''"
               SourceFiles="@(InzModuleFile)"
