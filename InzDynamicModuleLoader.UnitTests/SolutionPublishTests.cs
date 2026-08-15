@@ -54,8 +54,41 @@ public class SolutionPublishTests
 
         public RepoClone(string repoRoot)
         {
-            Path = System.IO.Path.Combine(_dir.FullName, "repo");
+            // CreateTempSubdirectory() returns a path under /var on macOS, but the temp directory
+            // itself is not a symlink - /var is (it points at /private/var). If we hand MSBuild the
+            // unresolved /var path, restore can see the same project through two path spellings and
+            // race to write the same generated file (e.g. obj/*.csproj.nuget.g.props), failing with
+            // "file already exists". ResolveRealPath walks up to find and resolve that symlinked
+            // ancestor, so MSBuild only ever sees one identity for the clone.
+            Path = System.IO.Path.Combine(ResolveRealPath(_dir.FullName), "repo");
             CopyTree(new DirectoryInfo(repoRoot), new DirectoryInfo(Path));
+        }
+
+        /// <summary>
+        /// Resolves every symlink in a path's ancestry, not just the path itself.
+        /// DirectoryInfo.ResolveLinkTarget only resolves an entry that is itself a symlink, but on
+        /// macOS the temp directory is real and merely sits under a symlinked ancestor (/var), so that
+        /// alone leaves the path unresolved.
+        /// </summary>
+        private static string ResolveRealPath(string path)
+        {
+            var info = new DirectoryInfo(path);
+            var segments = new Stack<string>();
+            while (info is not null)
+            {
+                var target = info.ResolveLinkTarget(returnFinalTarget: true);
+                if (target is not null)
+                {
+                    var result = target.FullName;
+                    while (segments.Count > 0) result = System.IO.Path.Combine(result, segments.Pop());
+                    return result;
+                }
+
+                segments.Push(info.Name);
+                info = info.Parent;
+            }
+
+            return path;
         }
 
         private static void CopyTree(DirectoryInfo source, DirectoryInfo target)
