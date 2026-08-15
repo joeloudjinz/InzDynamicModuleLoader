@@ -135,8 +135,16 @@ public class PackagedConsumerTests
 
         public ProcessRunner.Result TryPublish(string extraArgs)
         {
+            // The csproj path must be relative to the working directory, not absolute. On macOS the
+            // temp root returned by Directory.CreateTempSubdirectory sits under a symlinked prefix
+            // (/var -> /private/var). Passing an absolute path built from that unresolved prefix makes
+            // MSBuild's restore graph treat the entry project and its own ProjectReference targets
+            // (resolved relative to the project file, which canonicalizes through the symlink) as two
+            // different identities, so the entry project's ProjectReference items are silently dropped
+            // from the restore graph. A path relative to the working directory avoids the mismatch.
+            var relativeCsproj = Path.Combine("App.Host", "App.Host.csproj");
             var result = ProcessRunner.Run("dotnet",
-                $"publish \"{Path.Combine(_hostDir, "App.Host.csproj")}\" -c Release -o \"{PublishDir}\" --nologo {extraArgs}",
+                $"publish \"{relativeCsproj}\" -c Release -o \"{PublishDir}\" --nologo {extraArgs}",
                 _root.FullName);
 
             if (result.Output.Contains("Unable to load the service index") ||
