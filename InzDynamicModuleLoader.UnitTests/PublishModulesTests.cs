@@ -1,100 +1,56 @@
-using System.Diagnostics;
-
 namespace InzDynamicModuleLoader.UnitTests;
 
 /// <summary>
-/// Regression test for the production publish gap: `dotnet publish` of a host must copy the built
-/// modules into {publishDir}/Modules/ so the deployed application can find them at runtime.
+/// A published host must contain the modules, and must be able to load them.
+/// This test publishes the probe host. The probe never asks the container for a service,
+/// so no database is contacted. Do not change it to publish an example application.
 /// </summary>
 [Trait("Category", "Integration")]
 public class PublishModulesTests
 {
-    private const string MySqlModule = "Example.Module.EFCore.MySQL";
-    private const string RepositoriesModule = "Example.Module.EFCore.Repositories";
+    private static readonly string[] ExpectedModules =
+    [
+        "Example.Module.EFCore.MySQL",
+        "Example.Module.EFCore.Repositories"
+    ];
 
     [Fact]
-    public void Publish_CopiesModulesIntoPublishOutput_SoDeployedHostCanLoadThem()
+    public void PublishedProbe_ContainsModules_AndLoadsThem()
     {
-        var repoRoot = FindRepoRoot();
-        var temp = Directory.CreateTempSubdirectory("inz-publish-test");
-        try
-        {
-            // 1. Build the module projects so BuiltModules/ is known-populated.
-            foreach (var module in new[] { MySqlModule, RepositoriesModule })
-                RunDotnet($"build \"{Path.Combine(repoRoot, module, module + ".csproj")}\" -c Release --nologo", repoRoot);
+        var repoRoot = ProcessRunner.FindRepoRoot();
+        using var temp = new TempDir();
 
-            // 2. Publish the host OUTSIDE the repo tree.
-            var host = Path.Combine(repoRoot, "Example.Module.ConsoleStartup", "Example.Module.ConsoleStartup.csproj");
-            RunDotnet($"publish \"{host}\" -c Release -o \"{temp.FullName}\" --nologo", repoRoot);
+        // Publish in the same configuration as this test run, so the shared module folder
+        // is not left in a different configuration.
+        ProcessRunner.Dotnet(
+            $"publish \"{Path.Combine(repoRoot, "Example.Module.PublishProbe", "Example.Module.PublishProbe.csproj")}\" " +
+            $"-c {ProcessRunner.CurrentConfiguration} -o \"{temp.Path}\" --nologo",
+            repoRoot);
 
-            // 3. Every module must be in the published artifact, with its dependency closure.
-            // 4. Modules must live only under Modules/, not loose in the publish root.
-            foreach (var module in new[] { MySqlModule, RepositoriesModule })
-                AssertModulePublished(temp.FullName, module);
+        foreach (var module in ExpectedModules) AssertModulePublished(temp.Path, module);
 
-            // 5. The deployed app must get past module loading. It still fails later on the
-            //    database - that is expected and out of scope.
-            var output = RunPublishedApp(temp.FullName);
-            Assert.DoesNotContain("Could not locate 'Modules' folder", output);
-        }
-        finally
-        {
-            temp.Delete(recursive: true);
-        }
+        // Positive check: the deployed application really loaded the modules.
+        var result = ProcessRunner.Run("dotnet", "Example.Module.PublishProbe.dll", temp.Path, TimeSpan.FromMinutes(2));
+
+        Assert.True(result.ExitCode == 0, $"the published probe failed to run:\n{result.Output}");
+        Assert.Contains($"MODULES-LOADED: {ExpectedModules.Length}", result.Output);
     }
 
-    /// <summary>
-    /// Asserts a module was published into {publishRoot}/Modules/{module}/ with its dependency closure,
-    /// and that it did not leak loose into the publish root.
-    /// </summary>
     private static void AssertModulePublished(string publishRoot, string module)
     {
-        var moduleDir = Path.Combine(publishRoot, "Modules", module);
-        Assert.True(Directory.Exists(moduleDir),
-            $"'{module}' is missing from the publish output at {moduleDir}");
-        Assert.True(File.Exists(Path.Combine(moduleDir, module + ".dll")),
-            $"'{module}.dll' is missing from the publish output at {moduleDir}");
-        Assert.True(File.Exists(Path.Combine(moduleDir, module + ".deps.json")),
-            $"'{module}.deps.json' is missing from {moduleDir} - the module's dependency closure was not copied");
+        var dir = Path.Combine(publishRoot, "Modules", module);
+        Assert.True(Directory.Exists(dir), $"'{module}' is missing from the publish output at {dir}");
+        Assert.True(File.Exists(Path.Combine(dir, module + ".dll")), $"'{module}.dll' is missing from {dir}");
+        Assert.True(File.Exists(Path.Combine(dir, module + ".deps.json")),
+            $"'{module}.deps.json' is missing from {dir}; the dependency closure was not copied");
         Assert.False(File.Exists(Path.Combine(publishRoot, module + ".dll")),
-            $"module assembly '{module}.dll' leaked into the publish root at {publishRoot}");
+            $"'{module}.dll' leaked into the publish root; modules must live only under Modules/");
     }
 
-    private static string FindRepoRoot()
+    private sealed class TempDir : IDisposable
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "InzDynamicLoader.sln")))
-            dir = dir.Parent;
-        return dir?.FullName
-            ?? throw new DirectoryNotFoundException($"Could not find InzDynamicLoader.sln above {AppContext.BaseDirectory}");
-    }
-
-    private static void RunDotnet(string arguments, string workingDirectory)
-    {
-        var (exitCode, output) = Run("dotnet", arguments, workingDirectory);
-        if (exitCode != 0) throw new InvalidOperationException($"`dotnet {arguments}` failed (exit {exitCode}):\n{output}");
-    }
-
-    private static string RunPublishedApp(string publishDir)
-    {
-        // Do not throw on failure: the app is expected to fail later on the database.
-        var (_, output) = Run("dotnet", "Example.Module.ConsoleStartup.dll", publishDir);
-        return output;
-    }
-
-    private static (int ExitCode, string Output) Run(string fileName, string arguments, string workingDirectory)
-    {
-        var psi = new ProcessStartInfo(fileName, arguments)
-        {
-            WorkingDirectory = workingDirectory,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
-        using var process = Process.Start(psi)!;
-        // Drain both streams concurrently to avoid a full-pipe deadlock on large build output.
-        var stdout = process.StandardOutput.ReadToEndAsync();
-        var stderr = process.StandardError.ReadToEndAsync();
-        process.WaitForExit();
-        return (process.ExitCode, stdout.Result + stderr.Result);
+        private readonly DirectoryInfo _dir = Directory.CreateTempSubdirectory("inz-publish-test");
+        public string Path => _dir.FullName;
+        public void Dispose() { try { _dir.Delete(recursive: true); } catch { /* best effort */ } }
     }
 }
