@@ -11,5 +11,19 @@
         <ProjectReference Include="..\Example.Module.Common\Example.Module.Common.csproj" />
         <ProjectReference Include="..\InzDynamicModuleLoader.Core\InzDynamicModuleLoader.Core.csproj" />
     </ItemGroup>
-    
+
+    <!--
+      Build-order references only. ReferenceOutputAssembly="false" means the host gets no compile-time
+      reference to these projects, so it still cannot see module types. The references make MSBuild build
+      the modules before the host publishes, and in the same configuration as the host.
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\Example.Module.EFCore.MySQL\Example.Module.EFCore.MySQL.csproj"
+                          ReferenceOutputAssembly="false" PrivateAssets="all"/>
+        <ProjectReference Include="..\Example.Module.EFCore.PostgreSQL\Example.Module.EFCore.PostgreSQL.csproj"
+                          ReferenceOutputAssembly="false" PrivateAssets="all"/>
+        <ProjectReference Include="..\Example.Module.EFCore.Repositories\Example.Module.EFCore.Repositories.csproj"
+                          ReferenceOutputAssembly="false" PrivateAssets="all"/>
+    </ItemGroup>
+
 </Project>
