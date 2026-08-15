@@ -21,6 +21,7 @@ this library contains the abstraction layer files like `IAmModule`.
     - [4. Implement Your Module](#4-implement-your-module)
     - [5. Configure Modules](#5-configure-modules)
     - [6. Register and Initialize Modules](#6-register-and-initialize-modules)
+    - [7. Publish Your Application](#7-publish-your-application)
 - [Project Structure](#project-structure)
 - [Managing Dependencies](#managing-dependencies)
 - [IAmModule Interface Explained](#iammodule-interface-explained)
@@ -174,6 +175,39 @@ app.Services.InitializeModules(builder.Configuration);
 // Continue with your application setup
 app.Run();
 ```
+
+### 7. Publish Your Application
+
+When you publish your host application, your modules are copied automatically into a `Modules` folder next to the executable — which is where the loader looks for them in production:
+
+```shell
+dotnet build                          # builds your modules into BuiltModules/
+dotnet publish YourHost -o ./deploy   # ./deploy/Modules/MyExampleModule/... is created for you
+```
+
+**Build your modules before publishing.** The publish step copies from `BuiltModules/`, which is only populated when your module projects build. If it is missing or empty you will get a build warning and no modules will be copied — the deployed app would then fail at startup with `Could not locate 'Modules' folder`.
+
+Add a build-order reference from your host project to each module project, so the build system builds your modules before it publishes your host, and in the same configuration:
+
+```xml
+
+<ItemGroup>
+    <ProjectReference Include="..\MyExampleModule\MyExampleModule.csproj"
+                      ReferenceOutputAssembly="false" PrivateAssets="all" />
+</ItemGroup>
+```
+
+`ReferenceOutputAssembly="false"` means the host gets no compile-time reference to the module — the host still cannot see module types, and modules are still chosen through configuration, not code. Without a reference like this, a solution-level publish can copy an incomplete set of modules, and a Debug build followed by a Release publish can deploy Debug modules into a Release app.
+
+Three properties are available if you need them:
+
+| Property | Default | Purpose |
+| --- | --- | --- |
+| `InzModulesSourcePath` | `BuiltModules` next to your solution-root `Directory.Build.targets` | Where modules are copied from. Set it if your modules live elsewhere, or if your host project has its own `Directory.Build.targets`, which moves the search anchor. |
+| `InzCopyModulesToPublish` | `true` | Set to `false` if you deploy modules another way (for example a Docker `COPY`). |
+| `InzRequireModulesOnPublish` | `false` | Set to `true` in a release pipeline. A missing or empty module folder then stops the build with error `INZ001` instead of a warning. |
+
+The warning carries the code `INZ001`, so `-p:NoWarn=INZ001` silences it in a build that treats warnings as errors.
 
 ## Project Structure
 

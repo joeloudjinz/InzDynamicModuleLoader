@@ -6,9 +6,9 @@
         <Nullable>enable</Nullable>
 
         <PackageId>InzSoftwares.NetDynamicModuleLoader</PackageId>
-        <Version>1.1.0</Version>
-        <AssemblyVersion>1.1.0.0</AssemblyVersion>
-        <FileVersion>1.1.0.0</FileVersion>
+        <Version>1.2.0</Version>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+        <FileVersion>1.2.0.0</FileVersion>
         <Authors>Abdellah Addoun</Authors>
         <Company>InzSoftwares</Company>
         <Product>InzSoftwares.NetDynamicModuleLoader</Product>
@@ -45,6 +45,8 @@
 
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="\"/>
+        <None Include="build\InzSoftwares.NetDynamicModuleLoader.targets" Pack="true" PackagePath="build\"/>
+        <None Include="build\InzSoftwares.NetDynamicModuleLoader.targets" Pack="true" PackagePath="buildTransitive/"/>
     </ItemGroup>
 
     <ItemGroup>

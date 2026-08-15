@@ -1,5 +1,6 @@
 bin/
 obj/
+BenchmarkDotNet.Artifacts/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
@@ -9,3 +10,4 @@ BuiltModules
 InzDynamicLoader.sln.DotSettings.user
 .DS_Store
 nupkg
+.claude/
