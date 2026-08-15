@@ -45,6 +45,8 @@
 
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="\"/>
+        <None Include="build\InzSoftwares.NetDynamicModuleLoader.targets" Pack="true" PackagePath="build\"/>
+        <None Include="build\InzSoftwares.NetDynamicModuleLoader.targets" Pack="true" PackagePath="buildTransitive/"/>
     </ItemGroup>
 
     <ItemGroup>

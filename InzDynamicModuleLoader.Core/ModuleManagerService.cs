@@ -236,7 +236,8 @@ internal class ModuleManagerService : IModuleManager
         var baseDir = AppContext.BaseDirectory;
 
         // SCENARIO 1: Production / Docker
-        // Expect a "Modules" folder sitting right next to the executable. This folder is created by the "CopyModulesToPublish" target in the .csproj.
+        // Expect a "Modules" folder sitting right next to the executable. This folder is created by the
+        // "CopyModulesToPublish" target shipped in the package at build/InzSoftwares.NetDynamicModuleLoader.targets.
         var localModulesPath = Path.Combine(baseDir, "Modules");
         if (Directory.Exists(localModulesPath))
         {

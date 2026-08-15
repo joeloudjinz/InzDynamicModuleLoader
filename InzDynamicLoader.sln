@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicModuleLoader.Star
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InzDynamicModuleLoader.Microbench", "benchmarks\InzDynamicModuleLoader.Microbench\InzDynamicModuleLoader.Microbench.csproj", "{94AF0B2C-1A19-4634-A46C-59642FD6E8A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Module.PublishProbe", "Example.Module.PublishProbe\Example.Module.PublishProbe.csproj", "{90526C0A-CAE5-4E73-9BFD-3888910DC26A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -213,6 +215,18 @@ Global
 		{94AF0B2C-1A19-4634-A46C-59642FD6E8A2}.Release|x64.Build.0 = Release|Any CPU
 		{94AF0B2C-1A19-4634-A46C-59642FD6E8A2}.Release|x86.ActiveCfg = Release|Any CPU
 		{94AF0B2C-1A19-4634-A46C-59642FD6E8A2}.Release|x86.Build.0 = Release|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Debug|x64.Build.0 = Debug|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Debug|x86.Build.0 = Debug|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Release|x64.ActiveCfg = Release|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Release|x64.Build.0 = Release|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Release|x86.ActiveCfg = Release|Any CPU
+		{90526C0A-CAE5-4E73-9BFD-3888910DC26A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
